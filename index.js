@@ -1,14 +1,13 @@
 // module-level global vars
 
 // we're using a single, global state object
-// in this app
 var state = {
   items: []
 };
 
 var listItemTemplate = (
   '<li>' +
-    '<span class="shopping-item">help me nicoloas!</span>' +
+    '<span class="shopping-item">shopping item</span>' +
     '<div class="shopping-item-controls">' +
       '<button class="shopping-item-toggle">' +
         '<span class="button-label">check</span>' +
@@ -26,22 +25,25 @@ function addItem(state, item) {
     displayName: item,
     checkedOff: false
   });
+  // we're pushing an object into the array
 }
 
 function getItem(state, itemIndex) {
+  console.log(state.items[itemIndex]);
   return state.items[itemIndex];
 }
 
 function deleteItem(state, itemData) {
+  console.log(state.items.splice(itemData,1));
   state.items.splice(itemData, 1);
 }
 
 function updateItem(state, itemIndex, newItemState) {
+  console.log(state.items[itemIndex] = newItemState);
   state.items[itemIndex] = newItemState;
 }
 
 // DOM manipulation
-
 function renderShoppingItem(item, itemId, itemTemplate, itemDataAttr) {
   var element = $(itemTemplate);
   element.find('.shopping-item').text(item.displayName);
@@ -63,13 +65,12 @@ function renderShoppingList(state, listElement, itemDataAttr) {
 
 
 // Event listeners
-
 function handleItemAdds(
-  formElement, newItemIdentifier, itemDataAttr, listElement, state) {
+  formElement, newItemId, itemDataAttr, listElement, state) {
 
   formElement.submit(function(event) {
     event.preventDefault();
-    var newItem = formElement.find(newItemIdentifier).val();
+    var newItem = formElement.find(newItemId).val();
     addItem(state, newItem);
     renderShoppingList(state, listElement, itemDataAttr);
     // reset form
@@ -78,27 +79,19 @@ function handleItemAdds(
 }
 
 function handleItemDeletes(
-  formElement, removeIdentifier, removeItem, itemDataAttr, listElement, state) {
+  formElement, removeId, removeItem, itemDataAttr, listElement, state) {
 
-  listElement.on('click', removeIdentifier, function(event) {
+  listElement.on('click', removeId, function(event) {
     var itemData = $(this).closest('li').data(itemDataAttr);
     deleteItem(state, itemData);
     renderShoppingList(state, listElement, itemDataAttr);
   })
-
-  // currentElement.on('click', removeItem, function(event) {
-  //   //console.log(currentElement);
-  //   //console.log(removeItem);
-  //   var item = $(this).closest('li');
-  //   deleteMe(item);
-  // })
 }
 
-
 function handleItemToggles(
-  listElement, toggleIdentifier, itemDataAttr, state) {
+  listElement, toggleId, itemDataAttr, state) {
 
-  listElement.on('click', toggleIdentifier, function(event) {
+  listElement.on('click', toggleId, function(event) {
     var itemId = $(event.currentTarget.closest('li')).data(itemDataAttr);
     var oldItem = getItem(state, itemId);
 
@@ -111,42 +104,28 @@ function handleItemToggles(
 }
 
 $(function() {
+  state.items = ['pickles', 'oranges', 'milk', 'bread'].map(function(item) {
+    return { displayName: item };
+  });
   var formElement = $('#js-shopping-list-form');
   var listElement = $('.shopping-list');
-  
-  state.items = ['pickles', 'oranges', 'milk', 'bread'].map(function(item) {
-    return { displayName:item };
-  });
-
-  // function reply_click(clicked_id){
-  //   //alert(clicked_id);
-  //   currentElement = document.getElementById(clicked_id);
-  //   console.log(currentElement);
-  // }
-
-  // from index.html -- it's the id of the input
-  // containing shopping list items
-  var newItemIdentifier = '#shopping-list-entry'; // #js-new-item
-	var itemIdentifier = '#shopping-list-id'; // id's from current ul-list
-
-  // from `listItemTemplate` at top of this file. for each
-  // displayed shopping list item, we'll be adding a button
-  // that has this class name on it
-  var removeIdentifier = '.shopping-item-delete';
+  var newItemId = '#shopping-list-entry'; 
+	var itemId = '#shopping-list-id';
+  var removeId = '.shopping-item-delete';
   var removeItem = '.shopping-item-delete';
-
-  // we'll use this attribute to store the id of the list item
   var itemDataAttr = 'list-item-id';
-
-  //
-  var toggleIdentifier = '.shopping-item-toggle'
+  var toggleId = '.shopping-item-toggle';
 
   renderShoppingList(state, listElement, itemDataAttr);
 
   handleItemAdds(
-  formElement, newItemIdentifier, itemDataAttr, listElement, state);
+  formElement, newItemId, itemDataAttr, listElement, state
+  );
+  
   handleItemDeletes(
-    formElement, removeIdentifier, removeItem, itemDataAttr, listElement, state);
-  handleItemToggles(listElement, toggleIdentifier, itemDataAttr, state);
+    formElement, removeId, removeItem, itemDataAttr, listElement, state
+  );
+  handleItemToggles(listElement, toggleId, itemDataAttr, state);
+  
 });
 
